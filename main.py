@@ -1,14 +1,16 @@
 import smtplib
-import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from urllib.parse import urljoin
-from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
 
 BASE_URL = "https://g1.globo.com"
+SMTP_USER = "danielartdesignofc@gmail.com"
+SMTP_APP_PASSWORD = "adicione sua senha aqui"
+SMTP_TO_EMAIL = "daniel.silva@sfa.adv.br"
+SMTP_CC_EMAIL = "mateus.estevam@sfa.adv.br"
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 SECTION_URLS = {
@@ -33,27 +35,6 @@ RESEARCH_LINKS = {
         "Politica": "https://www.band.uol.com.br/noticias/politica",
     },
 }
-
-
-def load_env_file():
-    env_path = Path(__file__).with_name(".env")
-    if not env_path.exists():
-        return
-
-    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-
-        key, value = line.split("=", 1)
-        key = key.strip()
-        value = value.strip().strip('"').strip("'")
-
-        if key and value and key not in os.environ:
-            os.environ[key] = value
-
-
-load_env_file()
 
 def fetch_article_description(url):
     article_response = requests.get(url, headers=HEADERS, timeout=20)
@@ -120,13 +101,13 @@ def scrape_g1_news():
 def send_email(news_by_section):
     """Envia a notícia para o email"""
     try:
-        sender_email = os.getenv("SMTP_USER")
-        sender_password = os.getenv("SMTP_APP_PASSWORD")
-        receiver_email = os.getenv("SMTP_TO_EMAIL")
-        cc_email = os.getenv("SMTP_CC_EMAIL", "mateus.estevam@sfa.adv.br")
+        sender_email = SMTP_USER
+        sender_password = SMTP_APP_PASSWORD
+        receiver_email = SMTP_TO_EMAIL
+        cc_email = SMTP_CC_EMAIL
 
         if not sender_email or not sender_password or not receiver_email:
-            raise ValueError("Defina SMTP_USER, SMTP_APP_PASSWORD e SMTP_TO_EMAIL no ambiente")
+            raise ValueError("Defina SMTP_USER, SMTP_APP_PASSWORD e SMTP_TO_EMAIL no código")
         
         message = MIMEMultipart()
         message["From"] = sender_email
