@@ -1,4 +1,5 @@
 import smtplib
+import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from urllib.parse import urljoin
@@ -7,10 +8,10 @@ import requests
 from bs4 import BeautifulSoup
 
 BASE_URL = "https://g1.globo.com"
-SMTP_USER = "danielartdesignofc@gmail.com"
-SMTP_APP_PASSWORD = "adicione sua senha aqui"
-SMTP_TO_EMAIL = "daniel.silva@sfa.adv.br"
-SMTP_CC_EMAIL = "mateus.estevam@sfa.adv.br"
+SMTP_USER = os.getenv("SMTP_USER")
+SMTP_APP_PASSWORD = os.getenv("SMTP_APP_PASSWORD")
+SMTP_TO_EMAIL = os.getenv("SMTP_TO_EMAIL")
+SMTP_CC_EMAIL = os.getenv("SMTP_CC_EMAIL", "")
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 SECTION_URLS = {
@@ -107,7 +108,7 @@ def send_email(news_by_section):
         cc_email = SMTP_CC_EMAIL
 
         if not sender_email or not sender_password or not receiver_email:
-            raise ValueError("Defina SMTP_USER, SMTP_APP_PASSWORD e SMTP_TO_EMAIL no código")
+            raise ValueError("Defina SMTP_USER, SMTP_APP_PASSWORD e SMTP_TO_EMAIL nas variáveis de ambiente")
         
         message = MIMEMultipart()
         message["From"] = sender_email
